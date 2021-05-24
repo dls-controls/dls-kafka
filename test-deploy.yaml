@@ -1,0 +1,77 @@
+kind: Namespace
+apiVersion: v1
+metadata:
+  name: tests
+  labels:
+    name: tests
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: test-pods
+  namespace: tests
+spec:
+  replicas: 7
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: test-pods
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: test-pods
+    spec:
+      imagePullSecrets:
+        - name: regcred
+      containers:
+        - name: testcontainer
+          image: alpine
+          command:
+            - "sh"
+          args:
+            - -c
+            - while true; do sleep 5; done
+          resources:
+            limits:
+              memory: "10Mi"
+              cpu: "100m"
+          env:
+          - name: TEST_ENV
+            value: hello again, world
+      affinity:
+        # EXAMPLE dont run on a node that already has robot in it
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                topologyKey: "kubernetes.io/hostname"
+                labelSelector:
+                  matchExpressions:
+                    - key: "app.kubernetes.io/name"
+                      operator: In
+                      values:
+                      - robot
+              weight: 1
+
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app.kubernetes.io/name"
+                    operator: In
+                    values:
+                    - test-pods
+              topologyKey: "kubernetes.io/hostname"
+        # node names we prefer to run on
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 1
+              preference:
+                matchExpressions:
+                - key: kubernetes.io/hostname
+                  operator: In
+                  values:
+                    - gknuc
+                    - gklinux2
+                    - pi3
+
+

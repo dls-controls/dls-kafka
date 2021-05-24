@@ -1,0 +1,52 @@
+replicaCount: 3
+
+externalAccess:
+  ## Enable Kubernetes external cluster access to Kafka brokers
+  ##
+  enabled: true
+## Parameters to configure K8s service(s) used to externally access Kafka brokers
+  ## A new service per broker will be created
+  ##
+  service:
+    ## Service type. Allowed values: LoadBalancer or NodePort
+    ##
+    type: NodePort
+    nodePorts: [30006, 30007, 30008]
+    useHostIPs: true
+
+## Persistence parameters
+persistence:
+  enabled: false
+
+## Affinity
+#
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        # FOR giles cluster only - avoid arm arch
+        - matchExpressions:
+            - key: kubernetes.io/arch
+              operator: In
+              values:
+                - amd64
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - podAffinityTerm:
+          topologyKey: "kubernetes.io/hostname"
+          labelSelector:
+            matchExpressions:
+              - key: "app.kubernetes.io/name"
+                operator: In
+                values:
+                - kafka
+        weight: 1
+      - podAffinityTerm:
+          topologyKey: "kubernetes.io/hostname"
+          labelSelector:
+            matchExpressions:
+              - key: "app.kubernetes.io/name"
+                operator: In
+                values:
+                - zookeeper
+        weight: 1

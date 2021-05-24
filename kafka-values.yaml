@@ -1,0 +1,55 @@
+replicaCount: 3
+serviceAccount:
+  ## Specifies whether a ServiceAccount should be created
+  ##
+  create: false
+  ## The name of the ServiceAccount to use.
+  ## If not set and create is true, a name is generated using the kafka.serviceAccountName template
+  ##
+  name: default
+  # Allows auto mount of ServiceAccountToken on the serviceAccount created
+  # Can be set to false if pods using this serviceAccount do not need to use K8s API
+  automountServiceAccountToken: true
+
+
+## External Access to Kafka brokers configuration
+externalAccess:
+  ## Enable Kubernetes external cluster access to Kafka brokers
+  enabled: true
+## Parameters to configure K8s service(s) used to externally access Kafka brokers
+  ## A new service per broker will be created
+  service:
+    ## Service type. Allowed values: LoadBalancer or NodePort
+    type: NodePort
+    nodePorts: [30006, 30007, 30008]
+    useHostIPs: true
+
+## Persistence parameters
+# no persistance means that we get local-path ephemeral storage
+persistence:
+  enabled: false
+
+## Affinity
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      # try not to run on a node already running kafka
+      - podAffinityTerm:
+          topologyKey: "kubernetes.io/hostname"
+          labelSelector:
+            matchExpressions:
+              - key: "app.kubernetes.io/name"
+                operator: In
+                values:
+                - kafka
+        weight: 1
+      # try not to run on a node already running kafka
+      - podAffinityTerm:
+          topologyKey: "kubernetes.io/hostname"
+          labelSelector:
+            matchExpressions:
+              - key: "app.kubernetes.io/name"
+                operator: In
+                values:
+                - zookeeper
+        weight: 1
