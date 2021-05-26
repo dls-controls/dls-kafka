@@ -1,0 +1,22 @@
+cs04r-sc-serv-126
+cs04r-sc-serv-127
+
+To test with librdkafka:
+/home/wqt58532/kafka/librdkafka-master/examples/rdkafka_performance -P -b cs05r-sc-serv-13:9092, -t test -s 10000000 -c 100 -X queue.buffering.max.messages=10000000 -X message.max.bytes=100000000 -X queue.buffering.max.kbytes=2097151
+
+But this only gives an upper estimate of the rate: this allows data to be lost which is not what we want! Therefore, probably will not achieve these rates in practice.
+
+A more realistic librdkafka example:
+rdkafka_prodcucer_retry
+
+This is similar to the above but does not lose data. It's quite messy - I never bothered to report the rate back, I looked at the kafka metrics instead. There's also parameters to tweak or you can add more. The only drawback is you will have to re-compile (just "make" in the examples directory) every time you change something.
+
+To run up an odin stack
+1) cd to /dls_sw/work/tools/RHEL6-x86_64/eiger-detector/testdata/dls16M2_large/6mb
+2) run frame simulator: /dls_sw/work/common/src/emma/odin/odin-data-1-3-0/prefix/bin/frameSimulator Eiger --lib-path=/dls_sw/work/common/src/emma/odin/eiger-detector/prefix/lib --frames <num frames> --interval <1/freq>
+3) In a new terminal cd to /dls_sw/work/common/src/emma/odin
+4) Start the eiger fan: ./stEigerFan.sh
+5) Start the frame receiver: ./stFrameReceiver1.sh
+6) Start the frame processor: ./stFrameProcessor1.sh
+
+Change the fp1.json with the kafka cluster details

@@ -30,6 +30,12 @@ affinity:
               operator: In
               values:
                 - amd64
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - gknuc
+                - gklinux2
   podAntiAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
       - podAffinityTerm:
@@ -50,3 +56,23 @@ affinity:
                 values:
                 - zookeeper
         weight: 1
+
+zookeeper:
+  persistence:
+    enabled: false
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          # FOR giles cluster only - avoid arm arch
+          - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                  - amd64
+          - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                  - gknuc
+                  - gklinux2

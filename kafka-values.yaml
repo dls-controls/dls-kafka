@@ -1,4 +1,7 @@
 replicaCount: 3
+
+namespace: controls-kafka
+
 serviceAccount:
   ## Specifies whether a ServiceAccount should be created
   ##
@@ -21,7 +24,7 @@ externalAccess:
   service:
     ## Service type. Allowed values: LoadBalancer or NodePort
     type: NodePort
-    nodePorts: [30006, 30007, 30008]
+    nodePorts: [30016, 30017, 30018]
     useHostIPs: true
 
 ## Persistence parameters
@@ -29,8 +32,29 @@ externalAccess:
 persistence:
   enabled: false
 
+## use retention hours to avoid over filling emptyDir
+logRetentionHours: 24
+
+## Tolerations
+# the nodes assigned to kafka have taint nodetype=controlsKafka:NoSchedule
+tolerations:
+- key: "nodetype"
+  operator: "Equal"
+  value: "controlsKafka"
+  effect: "NoSchedule"
+
 ## Affinity
 affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - cs05r-sc-cloud-19.diamond.ac.uk
+                - cs05r-sc-cloud-20.diamond.ac.uk
+                - cs05r-sc-cloud-21.diamond.ac.uk
   podAntiAffinity:
     preferredDuringSchedulingIgnoredDuringExecution:
       # try not to run on a node already running kafka
@@ -53,3 +77,24 @@ affinity:
                 values:
                 - zookeeper
         weight: 1
+
+
+## Zookeeper
+# this requrires the same affinity and tolerations as kafka servers
+zookeeper:
+  tolerations:
+  - key: "nodetype"
+    operator: "Equal"
+    value: "controlsKafka"
+    effect: "NoSchedule"
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                  - cs05r-sc-cloud-19.diamond.ac.uk
+                  - cs05r-sc-cloud-20.diamond.ac.uk
+                  - cs05r-sc-cloud-21.diamond.ac.uk
