@@ -11,3 +11,9 @@ run in cluster:
 
 at the prompt type the following command for performance testing help
   /librdkafka/examples/rdkafka_performance
+
+To set up a producer with message size s and message count c do this:
+  /librdkafka/examples/rdkafka_performance -P -b kafka2-0-external.controls-kafka:9094,kafka2-1-external.controls-kafka:9094,kafka2-2-external.controls-kafka:9094 -t test -s 1000 -c 1000
+
+A matching consumer should exit when all is received:
+  /librdkafka/examples/rdkafka_performance -C -b kafka2-0-external.controls-kafka:9094,kafka2-1-external.controls-kafka:9094,kafka2-2-external.controls-kafka:9094 -t test2 -s 1000 -c 1000 -G a_group
