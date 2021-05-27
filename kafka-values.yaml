@@ -33,7 +33,23 @@ persistence:
   enabled: false
 
 ## use retention hours to avoid over filling emptyDir
-logRetentionHours: 24
+logRetentionHours: 12
+## max message size across all topics
+maxMessageBytes: _200000000
+
+# provision some topics at install
+# this fails due to the format of the number 100001000
+#   not sure if its possible to specify a very large number here?
+# provisioning:
+#   enabled: true
+#   topics:
+#     - name: test-topic
+#       partitions: 1
+#       replicationFactor: 3
+#       config:
+#         max.message.bytes: 100001000
+#         flush.messages: 1
+
 
 ## Tolerations
 # the nodes assigned to kafka have taint nodetype=controlsKafka:NoSchedule
