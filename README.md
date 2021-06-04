@@ -31,7 +31,7 @@ kafka-producer-perf-test.sh --producer-props bootstrap.servers=kafka2:9092 max.r
 kubectl -ti -n controls-kafka exec kafka-client-consumer -- bash
 ```
 ```
-kafka-consumer-perf-test.sh  --bootstrap-server=kafka2:9092 --timeout 60000 --from-latest --topic test3 --messages 100
+kafka-consumer-perf-test.sh  --bootstrap-server=kafka2:9092 --timeout 60000 --group test-group --topic test3 --messages 100
 ```
 
 ## change max message size for a topic
