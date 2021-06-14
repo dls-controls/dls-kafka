@@ -9,6 +9,12 @@ following command:
 helm upgrade -i -n controls-kafka kafka2 bitnami/kafka -f kafka-values.yaml
 ```
 
+# Notes
+The following use the test tools from the official kafka client image
+
+Also see the image in this repo under test-image which compiles the client
+library and tools - the perf tools in the latter give better statistics
+
 # Performance Testing
 
 ## create two test pods
