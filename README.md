@@ -53,3 +53,12 @@ To clean up later on ...
 kubectl delete pod/kafka-client-producer
 kubectl delete pod/kafka-client-consumer
 ```
+
+## access the bootstrap server from outside the cluster
+cs05r-sc-cloud-19:30016
+cs05r-sc-cloud-20:30017
+cs05r-sc-cloud-21:30018
+
+Above will get you direct to each of the 3 kafka nodes but the ports are nodeports
+so any IP in the cluster would route you their (but I assume with extra overhead
+for high traffic - How to address these correctly is to be investigated)
