@@ -9,13 +9,46 @@ following command:
 helm upgrade -i -n controls-kafka kafka2 bitnami/kafka -f kafka-values.yaml
 ```
 
-# Notes
-The following use the test tools from the official kafka client image
 
-Also see the image in this repo under test-image which compiles the client
-library and tools - the perf tools in the latter give better statistics
+# Performance Testing With librdkafka
 
-# Performance Testing
+## introduction
+
+First you need to be connected to the argus cluster and set default namespace
+to controls-kafka. To do this
+
+- module load argus
+- ./set-kafka.sh
+## Producer
+
+To fire up a test producer::
+
+    cd <root of this repo>
+    ./launch-test-consumer.sh
+    /librdkafka/examples/rdkafka_performance -P -X message.max.bytes=200000000 -b kafka2:9092 -t test3 -s 1000 -c 1000
+
+
+Adjust parameters as needed:
+
+- -t is topic
+- -s is size of test messages
+- -c is count of test messages
+
+
+## Consumer
+
+To fire up a test consumer::
+
+    cd <root of this repo>
+    ./launch-test-consumer.sh
+    /librdkafka/examples/rdkafka_performance -C -b kafka2:9092 -t test3 -c 1000 -G a_group
+
+Adjust parameters as needed:
+
+- -t is topic
+- -c is count of test messages
+
+# Performance Testing with the official kafka client image.
 
 ## create two test pods
 
@@ -40,18 +73,21 @@ kubectl -ti -n controls-kafka exec kafka-client-consumer -- bash
 kafka-consumer-perf-test.sh  --bootstrap-server=kafka2:9092 --timeout 60000 --group test-group --topic test3 --messages 100
 ```
 
-## change max message size for a topic
-
-run this from either of the above client pods
-```
-kafka-configs.sh --bootstrap-server kafka2:9092  --alter --entity-type topics --entity-name test3 --add-config max.message.bytes=100001000
-```
 ## delete test pods
 
 To clean up later on ...
 ```
 kubectl delete pod/kafka-client-producer
 kubectl delete pod/kafka-client-consumer
+```
+
+# Global Config Info
+
+## change max message size for a topic
+
+run this from either of the above client pods
+```
+kafka-configs.sh --bootstrap-server kafka2:9092  --alter --entity-type topics --entity-name test3 --add-config max.message.bytes=100001000
 ```
 
 ## access the bootstrap server from outside the cluster
